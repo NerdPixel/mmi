@@ -80,16 +80,16 @@ const App: React.FC = () => {
                         }
                     />
                 </div>
-                {/*<Flexbox>*/}
-                {/*    <Button*/}
-                {/*        type="primary"*/}
-                {/*        icon={<MessageOutlined />}*/}
-                {/*        onClick={toggleListening}*/}
-                {/*    >*/}
-                {/*        {isListening ? 'Listening...' : 'Click to talk'}*/}
-                {/*    </Button>*/}
-                {/*    <span>Transcript: {transcript}</span>*/}
-                {/*</Flexbox>*/}
+                <Flexbox>
+                    <Button
+                        type="primary"
+                        icon={<MessageOutlined />}
+                        onClick={toggleListening}
+                    >
+                        {isListening ? 'Listening...' : 'Click to talk'}
+                    </Button>
+                    <span>Transcript: {transcript}</span>
+                </Flexbox>
             </Space>
         </Container>
     )
