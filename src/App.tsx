@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import * as R from 'ramda'
 import styled from 'styled-components'
 import { Button, Space } from 'antd'
 import { MessageOutlined } from '@ant-design/icons'
