@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Button, Space } from 'antd'
 import { MessageOutlined } from '@ant-design/icons'
 
 import './App.css'
 import Chessboard from 'chessboardjsx'
-import { ChessInstance, ShortMove } from 'chess.js'
+import { ChessInstance, ShortMove, Square } from 'chess.js'
 import SpeechRecognition, {
     useSpeechRecognition,
 } from 'react-speech-recognition'
@@ -28,10 +28,30 @@ const App: React.FC = () => {
     const [chess] = useState<ChessInstance>(
         new Chess('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     )
-    const [isListening, setIsListening] = useState(false)
-    const { transcript, resetTranscript } = useSpeechRecognition()
-
     const [fen, setFen] = useState(chess.fen())
+    const { transcript, resetTranscript, listening } = useSpeechRecognition()
+    const [from, setFrom] = useState<Square | null>(null)
+    const [to, setTo] = useState<Square | null>(null)
+
+    useEffect(() => {
+        const transcripted = transcript.match(/[a-hA-H]+[1-8]/g)
+        if (transcripted) {
+            const square = transcripted[0].toLowerCase() as Square
+            if (from) {
+                setTo(square)
+            } else {
+                setFrom(square)
+            }
+        }
+    }, [transcript])
+
+    useEffect(() => {
+        if (from && to) {
+            handleMove({ from, to })
+            setFrom(null)
+            setTo(null)
+        }
+    }, [from, to])
 
     const handleMove = (move: ShortMove) => {
         if (chess.move(move)) {
@@ -45,20 +65,17 @@ const App: React.FC = () => {
                     setFen(chess.fen())
                 }
             }, 300)
-
             setFen(chess.fen())
         }
     }
 
     const toggleListening = () => {
-        if (isListening) {
-            setIsListening(false)
+        if (listening) {
             SpeechRecognition.stopListening()
         } else {
             resetTranscript()
-            setIsListening(true)
             SpeechRecognition.startListening({
-                continuous: true,
+                continuous: false,
                 language: 'en-US',
             })
         }
@@ -78,6 +95,16 @@ const App: React.FC = () => {
                                 promotion: 'q',
                             })
                         }
+                        squareStyles={
+                            from
+                                ? {
+                                      [from]: {
+                                          backgroundColor: 'orange',
+                                      },
+                                  }
+                                : {}
+                        }
+                        onSquareClick={setFrom}
                     />
                 </div>
                 <Flexbox>
@@ -86,9 +113,8 @@ const App: React.FC = () => {
                         icon={<MessageOutlined />}
                         onClick={toggleListening}
                     >
-                        {isListening ? 'Listening...' : 'Click to talk'}
+                        {listening ? 'Listening...' : 'Click to talk'}
                     </Button>
-                    <span>Transcript: {transcript}</span>
                 </Flexbox>
             </Space>
         </Container>
