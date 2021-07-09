@@ -4,11 +4,14 @@ import { Button, Space } from 'antd'
 import { MessageOutlined } from '@ant-design/icons'
 
 import './App.css'
-import Chessboard from 'chessboardjsx'
-import { ChessInstance, ShortMove, Square } from 'chess.js'
+import Chessboard, { Piece } from 'chessboardjsx'
+import { ChessInstance, PieceType, ShortMove, Square } from 'chess.js'
 import SpeechRecognition, {
     useSpeechRecognition,
 } from 'react-speech-recognition'
+import { normalizeTranscript, Pieces } from './synonyms'
+import { TreeNode } from 'antd/lib/tree-select'
+import { normalize } from 'path'
 
 const Container = styled.div`
     display: flex;
@@ -24,6 +27,47 @@ const Flexbox = styled.div`
 
 const Chess = require('chess.js')
 
+const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
+    const transcriptedPart = transcript.match(/[a-hA-H]+[1-8]/g)
+    if (!transcriptedPart) return false
+
+    const identifiedPiece = Object.entries(Pieces).reduce(
+        (acc: string | undefined, [key, syns]) => {
+            if (
+                syns.some((syn) => transcript.toLowerCase().includes(syn)) &&
+                !acc
+            ) {
+                return key
+            }
+            return acc
+        },
+        undefined
+    )
+
+    const toSquare = transcriptedPart[0].toLowerCase() as Square
+    if (identifiedPiece && toSquare) {
+        const possibleMoves = chess.SQUARES.filter((square) => {
+            const s = chess.get(square)
+            return s?.color === chess.turn() && s.type === identifiedPiece
+        })
+            .map((square) => {
+                const moves = chess
+                    .moves({ square, verbose: true })
+                    .filter((x) => x.to === toSquare)
+
+                if (moves.length === 1) return { from: square, to: toSquare }
+                return undefined
+            })
+            .filter((x) => x)
+
+        if (possibleMoves.length > 1) {
+            return false
+        } else {
+            return possibleMoves[0]
+        }
+    }
+}
+
 const App: React.FC = () => {
     const [chess] = useState<ChessInstance>(
         new Chess('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
@@ -35,6 +79,7 @@ const App: React.FC = () => {
     const [selectedSquare, setSelectedSquare] = useState<Square | null>()
 
     useEffect(() => {
+        console.log(normalizeTranscript(transcript))
         // check if player says full command like "a2 to a3"
         const transcriptedFull = transcript.match(
             /[a-hA-H]+[1-8].*(?:to|2).*[a-hA-H]+[1-8]/g
@@ -43,7 +88,18 @@ const App: React.FC = () => {
             const squares = transcriptedFull[0].toLowerCase()
             setFrom(squares.substring(0, 3).trim() as Square)
             setTo(squares.substring(squares.length - 2).trim() as Square)
+            return
         } else {
+            const pieceMove = checkContainsPiece(
+                chess,
+                normalizeTranscript(transcript)
+            )
+            if (pieceMove) {
+                setFrom(pieceMove.from)
+                setTo(pieceMove.to)
+                return
+            }
+
             // could be only a part has been said
             const transcriptedPart = transcript.match(/[a-hA-H]+[1-8]/g)
             if (transcriptedPart) {
@@ -92,6 +148,17 @@ const App: React.FC = () => {
             })
         }
     }
+    const handleKeypress = (e: KeyboardEvent) => {
+        console.log(e)
+        if (e.code === 'Space') {
+            toggleListening()
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeypress)
+        return () => window.removeEventListener('keydown', handleKeypress)
+    }, [])
 
     const handleSquareClick = (square: Square) => {
         if (from) {
@@ -144,6 +211,7 @@ const App: React.FC = () => {
                     >
                         {listening ? 'Listening...' : 'Click to talk'}
                     </Button>
+                    <p>or press the Space key...</p>
                 </Flexbox>
             </Space>
         </Container>
