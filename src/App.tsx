@@ -32,15 +32,27 @@ const App: React.FC = () => {
     const { transcript, resetTranscript, listening } = useSpeechRecognition()
     const [from, setFrom] = useState<Square | null>(null)
     const [to, setTo] = useState<Square | null>(null)
+    const [selectedSquare, setSelectedSquare] = useState<Square | null>()
 
     useEffect(() => {
-        const transcripted = transcript.match(/[a-hA-H]+[1-8]/g)
-        if (transcripted) {
-            const square = transcripted[0].toLowerCase() as Square
-            if (from) {
-                setTo(square)
-            } else {
-                setFrom(square)
+        // check if player says full command like "a2 to a3"
+        const transcriptedFull = transcript.match(
+            /[a-hA-H]+[1-8].*(?:to|2).*[a-hA-H]+[1-8]/g
+        )
+        if (transcriptedFull) {
+            const squares = transcriptedFull[0].toLowerCase()
+            setFrom(squares.substring(0, 3).trim() as Square)
+            setTo(squares.substring(squares.length - 2).trim() as Square)
+        } else {
+            // could be only a part has been said
+            const transcriptedPart = transcript.match(/[a-hA-H]+[1-8]/g)
+            if (transcriptedPart) {
+                const square = transcriptedPart[0].toLowerCase() as Square
+                if (from) {
+                    setTo(square)
+                } else {
+                    setFrom(square)
+                }
             }
         }
     }, [transcript])
@@ -81,6 +93,14 @@ const App: React.FC = () => {
         }
     }
 
+    const handleSquareClick = (square: Square) => {
+        if (from) {
+            setTo(square)
+        } else {
+            setFrom(square)
+        }
+    }
+
     return (
         <Container>
             <Space>
@@ -88,23 +108,32 @@ const App: React.FC = () => {
                     <Chessboard
                         width={800}
                         position={fen}
-                        onDrop={(move) =>
+                        onDrop={(move) => {
+                            setFrom(null)
                             handleMove({
                                 from: move.sourceSquare,
                                 to: move.targetSquare,
                                 promotion: 'q',
                             })
-                        }
-                        squareStyles={
-                            from
+                        }}
+                        squareStyles={{
+                            ...(from
                                 ? {
                                       [from]: {
                                           backgroundColor: 'orange',
                                       },
                                   }
-                                : {}
-                        }
-                        onSquareClick={setFrom}
+                                : {}),
+                            ...(selectedSquare
+                                ? {
+                                      [selectedSquare]: {
+                                          backgroundColor: 'orange',
+                                      },
+                                  }
+                                : {}),
+                        }}
+                        onSquareClick={handleSquareClick}
+                        onMouseOverSquare={setSelectedSquare}
                     />
                 </div>
                 <Flexbox>
