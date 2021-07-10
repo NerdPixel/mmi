@@ -9,7 +9,8 @@ export const Pieces = {
 
 export const syns = [
     ['see', 'c'],
-    ['night', 'knight'],
+    ['die', 'd'],
+    ['for', '4']
 ]
 
 export const normalizeTranscript = (transcript: string) => {

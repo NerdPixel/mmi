@@ -10,8 +10,6 @@ import SpeechRecognition, {
     useSpeechRecognition,
 } from 'react-speech-recognition'
 import { normalizeTranscript, Pieces } from './synonyms'
-import { TreeNode } from 'antd/lib/tree-select'
-import { normalize } from 'path'
 
 const Container = styled.div`
     display: flex;
@@ -25,11 +23,17 @@ const Flexbox = styled.div`
     flex-direction: column;
 `
 
+const MessageBox = styled.div`
+    border: 2px solid tomato;
+    padding: 10px;
+    position: relative;
+`
+
 const Chess = require('chess.js')
 
 const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
-    const transcriptedPart = transcript.match(/[a-hA-H]+[1-8]/g)
-    if (!transcriptedPart) return false
+    const transcriptedPart = transcript.match(/[a-hA-H]+\s?[1-8]/g)
+    if (!transcriptedPart) return { }
 
     const identifiedPiece = Object.entries(Pieces).reduce(
         (acc: string | undefined, [key, syns]) => {
@@ -44,7 +48,7 @@ const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
         undefined
     )
 
-    const toSquare = transcriptedPart[0].toLowerCase() as Square
+    const toSquare = transcriptedPart[0].toLowerCase().replace(" ", "") as Square
     if (identifiedPiece && toSquare) {
         const possibleMoves = chess.SQUARES.filter((square) => {
             const s = chess.get(square)
@@ -61,11 +65,12 @@ const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
             .filter((x) => x)
 
         if (possibleMoves.length > 1) {
-            return false
+            return { error: "Multiple possible pieces for that move" }
         } else {
-            return possibleMoves[0]
+            return { move: possibleMoves[0] }
         }
     }
+    return {}
 }
 
 const App: React.FC = () => {
@@ -77,27 +82,33 @@ const App: React.FC = () => {
     const [from, setFrom] = useState<Square | null>(null)
     const [to, setTo] = useState<Square | null>(null)
     const [selectedSquare, setSelectedSquare] = useState<Square | null>()
+    const [error, setError] = useState<string | null>()
 
     useEffect(() => {
+        if (!transcript) return;
+
         console.log(normalizeTranscript(transcript))
         // check if player says full command like "a2 to a3"
         const transcriptedFull = transcript.match(
             /[a-hA-H]+[1-8].*(?:to|2).*[a-hA-H]+[1-8]/g
         )
+
         if (transcriptedFull) {
             const squares = transcriptedFull[0].toLowerCase()
             setFrom(squares.substring(0, 3).trim() as Square)
             setTo(squares.substring(squares.length - 2).trim() as Square)
-            return
         } else {
             const pieceMove = checkContainsPiece(
                 chess,
                 normalizeTranscript(transcript)
             )
-            if (pieceMove) {
-                setFrom(pieceMove.from)
-                setTo(pieceMove.to)
-                return
+            if (pieceMove.move) {
+                setFrom(pieceMove.move.from)
+                setTo(pieceMove.move.to)
+                return;
+            } else if (pieceMove.error) {
+                setError(pieceMove.error || "Did not understand");
+                return;
             }
 
             // could be only a part has been said
@@ -109,6 +120,8 @@ const App: React.FC = () => {
                 } else {
                     setFrom(square)
                 }
+                setError(null);
+                return;
             }
         }
     }, [transcript])
@@ -122,6 +135,7 @@ const App: React.FC = () => {
     }, [from, to])
 
     const handleMove = (move: ShortMove) => {
+        setError(null);
         if (chess.move(move)) {
             setTimeout(() => {
                 const moves = chess.moves()
@@ -142,6 +156,7 @@ const App: React.FC = () => {
             SpeechRecognition.stopListening()
         } else {
             resetTranscript()
+            setError(null);
             SpeechRecognition.startListening({
                 continuous: false,
                 language: 'en-US',
@@ -212,6 +227,11 @@ const App: React.FC = () => {
                         {listening ? 'Listening...' : 'Click to talk'}
                     </Button>
                     <p>or press the Space key...</p>
+                    {error && !listening &&
+                        <MessageBox>
+                            {error}
+                        </MessageBox>
+                    }
                 </Flexbox>
             </Space>
         </Container>
