@@ -33,7 +33,7 @@ const Chess = require('chess.js')
 
 const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
     const transcriptedPart = transcript.match(/[a-hA-H]+\s?[1-8]/g)
-    if (!transcriptedPart) return { }
+    if (!transcriptedPart) return {}
 
     const identifiedPiece = Object.entries(Pieces).reduce(
         (acc: string | undefined, [key, syns]) => {
@@ -48,7 +48,9 @@ const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
         undefined
     )
 
-    const toSquare = transcriptedPart[0].toLowerCase().replace(" ", "") as Square
+    const toSquare = transcriptedPart[0]
+        .toLowerCase()
+        .replace(' ', '') as Square
     if (identifiedPiece && toSquare) {
         const possibleMoves = chess.SQUARES.filter((square) => {
             const s = chess.get(square)
@@ -65,7 +67,7 @@ const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
             .filter((x) => x)
 
         if (possibleMoves.length > 1) {
-            return { error: "Multiple possible pieces for that move" }
+            return { error: 'Multiple possible pieces for that move' }
         } else {
             return { move: possibleMoves[0] }
         }
@@ -85,7 +87,7 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>()
 
     useEffect(() => {
-        if (!transcript) return;
+        if (!transcript) return
 
         console.log(normalizeTranscript(transcript))
         // check if player says full command like "a2 to a3"
@@ -105,10 +107,10 @@ const App: React.FC = () => {
             if (pieceMove.move) {
                 setFrom(pieceMove.move.from)
                 setTo(pieceMove.move.to)
-                return;
+                return
             } else if (pieceMove.error) {
-                setError(pieceMove.error || "Did not understand");
-                return;
+                setError(pieceMove.error || 'Did not understand')
+                return
             }
 
             // could be only a part has been said
@@ -120,8 +122,8 @@ const App: React.FC = () => {
                 } else {
                     setFrom(square)
                 }
-                setError(null);
-                return;
+                setError(null)
+                return
             }
         }
     }, [transcript])
@@ -135,7 +137,7 @@ const App: React.FC = () => {
     }, [from, to])
 
     const handleMove = (move: ShortMove) => {
-        setError(null);
+        setError(null)
         if (chess.move(move)) {
             setTimeout(() => {
                 const moves = chess.moves()
@@ -156,7 +158,7 @@ const App: React.FC = () => {
             SpeechRecognition.stopListening()
         } else {
             resetTranscript()
-            setError(null);
+            setError(null)
             SpeechRecognition.startListening({
                 continuous: false,
                 language: 'en-US',
@@ -227,11 +229,7 @@ const App: React.FC = () => {
                         {listening ? 'Listening...' : 'Click to talk'}
                     </Button>
                     <p>or press the Space key...</p>
-                    {error && !listening &&
-                        <MessageBox>
-                            {error}
-                        </MessageBox>
-                    }
+                    {error && !listening && <MessageBox>{error}</MessageBox>}
                 </Flexbox>
             </Space>
         </Container>
