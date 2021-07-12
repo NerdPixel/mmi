@@ -76,7 +76,11 @@ const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
     return {}
 }
 
-const MainGame = (props: {
+const MainGame = ({
+    bPlayer,
+    wPlayer,
+    playTime,
+}: {
     bPlayer: string
     wPlayer: string
     playTime: number
@@ -210,8 +214,8 @@ const MainGame = (props: {
             <Space>
                 <div id="blackBar" className="sidebar">
                     <SideBar
-                        player={props.bPlayer}
-                        playTime={props.playTime}
+                        player={bPlayer}
+                        playTime={playTime}
                         marked={!whitesTurn}
                         moves={moves}
                         whiteBar={false}
@@ -252,12 +256,12 @@ const MainGame = (props: {
                 </div>
                 <div id="whiteBar" className="sideBar">
                     <SideBar
-                        player={props.wPlayer}
-                        playTime={props.playTime}
+                        player={wPlayer}
+                        playTime={playTime}
                         marked={whitesTurn}
                         moves={moves}
                         whiteBar={true}
-                    ></SideBar>
+                    />
                 </div>
                 <Flexbox>
                     <Button

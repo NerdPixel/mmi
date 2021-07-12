@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import React from 'react'
 
 //   const [timer, setTimer] = React.useState(10);
 //   const id =React.useRef(null);
@@ -7,25 +6,23 @@ import React from 'react'
 //   window.clearInterval(id.current)
 // }
 
-const ChessTimer = (props: { playTime: number }) => {
-    const [timer, setTimer] = useState(props.playTime)
+const ChessTimer = ({ playTime }: { playTime: number }) => {
+    const [timer, setTimer] = useState(playTime)
     useEffect(() => {
-        if (timer > 0) {
-            const timerID: NodeJS.Timer = setInterval(
-                () => setTimer(timer - 1),
-                1000
-            )
-            return () => {
+        let timerID = setInterval(() => {
+            if (timer > 0) {
+                setTimer(timer - 1)
+            }
+            if (timer === 0) {
                 clearInterval(timerID)
             }
+        }, 1000)
+        return () => {
+            clearInterval(timerID)
         }
     }, [timer])
 
-    return (
-        <div>
-            <div>{timer}</div>
-        </div>
-    )
+    return <div>{timer}</div>
 }
 
 export default ChessTimer
