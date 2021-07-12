@@ -18,22 +18,32 @@ const App: React.FC = () => {
 
     const [gameHasStarted, setGameHasStarted] = useState(false)
 
-    const state = gameHasStarted ? (
-        <MainGame
-            bPlayer={bPlayer}
-            wPlayer={wPlayer}
-            playTime={playTime}
-        ></MainGame>
-    ) : (
-        <IntroInputField
-            setbPlayer={setbPlayer}
-            setwPlayer={setwPlayer}
-            setPlayTime={setPlayTime}
-            setGameHasStarted={setGameHasStarted}
-        ></IntroInputField>
-    )
+    const handleSubmit = (
+        e: React.FormEvent<HTMLFormElement>,
+        bName: string,
+        wName: string,
+        playingTime: string
+    ) => {
+        e.preventDefault()
+        setbPlayer(bName)
+        setwPlayer(wName)
+        setPlayTime(playingTime)
+        setGameHasStarted(true)
+    }
 
-    return <Container>{state}</Container>
+    return (
+        <Container>
+            {gameHasStarted ? (
+                <MainGame
+                    bPlayer={bPlayer}
+                    wPlayer={wPlayer}
+                    playTime={playTime}
+                ></MainGame>
+            ) : (
+                <IntroInputField handleSubmit={handleSubmit}></IntroInputField>
+            )}
+        </Container>
+    )
 }
 
 export default App

@@ -1,28 +1,15 @@
 import React, { useState } from 'react'
 
-const IntroInputField = (props: {
-    setbPlayer: Function
-    setwPlayer: Function
-    setPlayTime: Function
-    setGameHasStarted: Function
-}) => {
+const IntroInputField = (props: { handleSubmit: Function }) => {
     const [bPlayer, setbPlayer] = useState('')
     const [wPlayer, setwPlayer] = useState('')
     const [playTime, setPlayTime] = useState('')
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        props.setbPlayer(bPlayer)
-        props.setwPlayer(wPlayer)
-        props.setPlayTime(playTime)
-        props.setGameHasStarted(true)
-    }
 
     return (
         <div>
             <form
                 onSubmit={(e) => {
-                    handleSubmit(e)
+                    props.handleSubmit(e, bPlayer, wPlayer, playTime)
                 }}
             >
                 <label>Name of white player:</label>
