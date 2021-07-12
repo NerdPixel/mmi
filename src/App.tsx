@@ -26,9 +26,9 @@ const App: React.FC = () => {
         ></MainGame>
     ) : (
         <IntroInputField
-            setGlobalbPlayer={setbPlayer}
-            setGlobalwPlayer={setwPlayer}
-            setGlobalPlayTime={setPlayTime}
+            setbPlayer={setbPlayer}
+            setwPlayer={setwPlayer}
+            setPlayTime={setPlayTime}
             setGameHasStarted={setGameHasStarted}
         ></IntroInputField>
     )

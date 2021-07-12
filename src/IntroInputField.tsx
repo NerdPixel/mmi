@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 
 const IntroInputField = (props: {
-    setGlobalbPlayer: Function
-    setGlobalwPlayer: Function
-    setGlobalPlayTime: Function
+    setbPlayer: Function
+    setwPlayer: Function
+    setPlayTime: Function
     setGameHasStarted: Function
 }) => {
     const [bPlayer, setbPlayer] = useState('')
@@ -12,9 +12,9 @@ const IntroInputField = (props: {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        props.setGlobalbPlayer(bPlayer)
-        props.setGlobalwPlayer(wPlayer)
-        props.setGlobalPlayTime(playTime)
+        props.setbPlayer(bPlayer)
+        props.setwPlayer(wPlayer)
+        props.setPlayTime(playTime)
         props.setGameHasStarted(true)
     }
 
