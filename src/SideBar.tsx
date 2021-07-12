@@ -5,7 +5,7 @@ import { ShortMove } from 'chess.js'
 
 const SideBar = (props: {
     player: string
-    playTime: string
+    playTime: number
     marked: boolean
     moves: [ShortMove] | null
     whiteBar: boolean
@@ -21,14 +21,19 @@ const SideBar = (props: {
     const name = props.player
     const Border = props.marked ? BorderMarked : NormalBorder
     const turnTime = props.marked ? <h3>It is your turn!</h3> : <div></div>
-
+    const timer =
+        props.playTime != 0 ? (
+            <ChessTimer playTime={props.playTime}></ChessTimer>
+        ) : (
+            <div></div>
+        )
     return (
         <div>
             {
                 <Border>
                     <h2>{name}'s status</h2>
                     <div>{turnTime}</div>
-                    <ChessTimer playTime={props.playTime}></ChessTimer>
+                    <div>{timer}</div>
                     <Moves
                         moves={props.moves}
                         whiteBar={props.whiteBar}

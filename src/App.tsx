@@ -14,7 +14,7 @@ const Container = styled.div`
 const App: React.FC = () => {
     const [bPlayer, setbPlayer] = useState('')
     const [wPlayer, setwPlayer] = useState('')
-    const [playTime, setPlayTime] = useState('')
+    const [playTime, setPlayTime] = useState<number>(0)
 
     const [gameHasStarted, setGameHasStarted] = useState(false)
 
@@ -22,7 +22,7 @@ const App: React.FC = () => {
         e: React.FormEvent<HTMLFormElement>,
         bName: string,
         wName: string,
-        playingTime: string
+        playingTime: number
     ) => {
         e.preventDefault()
         setbPlayer(bName)

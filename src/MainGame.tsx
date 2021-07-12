@@ -79,7 +79,7 @@ const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
 const MainGame = (props: {
     bPlayer: string
     wPlayer: string
-    playTime: string
+    playTime: number
 }) => {
     const [chess] = useState<ChessInstance>(
         new Chess('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')

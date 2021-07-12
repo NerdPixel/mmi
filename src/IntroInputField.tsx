@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 const IntroInputField = (props: { handleSubmit: Function }) => {
     const [bPlayer, setbPlayer] = useState('')
     const [wPlayer, setwPlayer] = useState('')
-    const [playTime, setPlayTime] = useState('')
+    const [playTime, setPlayTime] = useState<number>(0)
 
     return (
         <div>
@@ -34,14 +34,14 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
                 <select
                     value={playTime}
                     onChange={(e) => {
-                        setPlayTime(e.target.value)
+                        setPlayTime(parseInt(e.target.value))
                     }}
                     required
                 >
-                    <option value="10">10/10 Minutes</option>
-                    <option value="20">20/20 Minutes</option>
-                    <option value="60">60/60 Minutes</option>
-                    <option defaultValue="noLimit">without time limit</option>
+                    <option value={10}>10/10 Minutes</option>
+                    <option value={20}>20/20 Minutes</option>
+                    <option value={60}>60/60 Minutes</option>
+                    <option value={0}>without time limit</option>
                 </select>
                 <input type="submit" value="Submit"></input>
             </form>
