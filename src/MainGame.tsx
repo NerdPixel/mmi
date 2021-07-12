@@ -79,7 +79,11 @@ const checkContainsPiece = (chess: ChessInstance, transcript: string) => {
     return {}
 }
 
-const MainGame = (props: {
+const MainGame = ({
+    bPlayer,
+    wPlayer,
+    playTime,
+}: {
     bPlayer: string
     wPlayer: string
     playTime: number
