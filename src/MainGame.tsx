@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Button, Space } from 'antd'
+import { Button, Layout, Space } from 'antd'
 import SideBar from './SideBar'
 import { MessageOutlined } from '@ant-design/icons'
 
@@ -11,12 +11,15 @@ import SpeechRecognition, {
     useSpeechRecognition,
 } from 'react-speech-recognition'
 import { normalizeTranscript, Pieces } from './synonyms'
+import Sider from 'antd/lib/layout/Sider'
+import { Content, Footer } from 'antd/lib/layout/layout'
 
 const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 30px;
+    flex-direction: column;
 `
 
 const Flexbox = styled.div`
@@ -206,72 +209,74 @@ const MainGame = (props: {
     }
 
     return (
-        <Container>
+        <div>
             <Space>
-                <div id="blackBar" className="sidebar">
-                    <SideBar
-                        player={props.bPlayer}
-                        playTime={props.playTime}
-                        marked={!whitesTurn}
-                        moves={moves}
-                        whiteBar={false}
-                    ></SideBar>
-                </div>
-
-                <div className="flex-center">
-                    <Chessboard
-                        width={800}
-                        position={fen}
-                        onDrop={(move) => {
-                            setFrom(null)
-                            handleMove({
-                                from: move.sourceSquare,
-                                to: move.targetSquare,
-                                promotion: 'q',
-                            })
-                        }}
-                        squareStyles={{
-                            ...(from
-                                ? {
-                                      [from]: {
-                                          backgroundColor: 'orange',
-                                      },
-                                  }
-                                : {}),
-                            ...(selectedSquare
-                                ? {
-                                      [selectedSquare]: {
-                                          backgroundColor: 'orange',
-                                      },
-                                  }
-                                : {}),
-                        }}
-                        onSquareClick={handleSquareClick}
-                        onMouseOverSquare={setSelectedSquare}
-                    />
-                </div>
-                <div id="whiteBar" className="sideBar">
-                    <SideBar
-                        player={props.wPlayer}
-                        playTime={props.playTime}
-                        marked={whitesTurn}
-                        moves={moves}
-                        whiteBar={true}
-                    ></SideBar>
-                </div>
-                <Flexbox>
-                    <Button
-                        type="primary"
-                        icon={<MessageOutlined />}
-                        onClick={toggleListening}
-                    >
-                        {listening ? 'Listening...' : 'Click to talk'}
-                    </Button>
-                    <p>or press the Space key...</p>
-                    {error && !listening && <MessageBox>{error}</MessageBox>}
-                </Flexbox>
+                <Layout id="layout">
+                    <Sider className="sideBar" theme="light" width="300">
+                        <SideBar
+                            player={props.bPlayer}
+                            playTime={props.playTime}
+                            marked={!whitesTurn}
+                            moves={moves}
+                            whiteBar={false}
+                        ></SideBar>
+                    </Sider>
+                    <Content className="flex-center">
+                        <Chessboard
+                            width={800}
+                            position={fen}
+                            onDrop={(move) => {
+                                setFrom(null)
+                                handleMove({
+                                    from: move.sourceSquare,
+                                    to: move.targetSquare,
+                                    promotion: 'q',
+                                })
+                            }}
+                            squareStyles={{
+                                ...(from
+                                    ? {
+                                          [from]: {
+                                              backgroundColor: 'orange',
+                                          },
+                                      }
+                                    : {}),
+                                ...(selectedSquare
+                                    ? {
+                                          [selectedSquare]: {
+                                              backgroundColor: 'orange',
+                                          },
+                                      }
+                                    : {}),
+                            }}
+                            onSquareClick={handleSquareClick}
+                            onMouseOverSquare={setSelectedSquare}
+                        />
+                    </Content>
+                    <Sider theme="light" width="300" className="sideBar">
+                        <SideBar
+                            player={props.wPlayer}
+                            playTime={props.playTime}
+                            marked={whitesTurn}
+                            moves={moves}
+                            whiteBar={true}
+                        ></SideBar>
+                    </Sider>
+                </Layout>
             </Space>
-        </Container>
+
+            <Flexbox>
+                <Button
+                    type="primary"
+                    icon={<MessageOutlined />}
+                    onClick={toggleListening}
+                >
+                    {listening ? 'Listening...' : 'Click to talk'}
+                </Button>
+                <p>or press the Space key...</p>
+                {error && !listening && <MessageBox>{error}</MessageBox>}
+            </Flexbox>
+        </div>
     )
 }
 
