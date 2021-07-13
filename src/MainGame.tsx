@@ -164,18 +164,7 @@ const MainGame = ({
         setError(null)
         if (chess.move(move)) {
             noteMove(move)
-            setWhitesTurn(false)
-            setTimeout(() => {
-                const moves = chess.moves()
-
-                if (moves.length > 0) {
-                    const computerMove =
-                        moves[Math.floor(Math.random() * moves.length)]
-                    chess.move(computerMove)
-                    // noteMove(computerMove)
-                    setFen(chess.fen())
-                }
-            }, 300)
+            setWhitesTurn(x => !x);
             setFen(chess.fen())
         }
     }
