@@ -12,38 +12,48 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
                     props.handleSubmit(e, bPlayer, wPlayer, playTime)
                 }}
             >
-                <label>Name of white player:</label>
+                <div className="formItem">
+                    <label>Name of white player:</label>
+                    <input
+                        type="text"
+                        value={wPlayer}
+                        required
+                        onChange={(e) => {
+                            setwPlayer(e.target.value)
+                        }}
+                    ></input>
+                </div>
+                <div className="formItem">
+                    <label>Name of black player:</label>
+                    <input
+                        type="text"
+                        value={bPlayer}
+                        required
+                        onChange={(e) => {
+                            setbPlayer(e.target.value)
+                        }}
+                    ></input>
+                </div>
+                <div className="formItem">
+                    <label>Pick your chess timer:</label>
+                    <select
+                        value={playTime}
+                        onChange={(e) => {
+                            setPlayTime(parseInt(e.target.value))
+                        }}
+                        required
+                    >
+                        <option value={10}>10/10 Minutes</option>
+                        <option value={20}>20/20 Minutes</option>
+                        <option value={60}>60/60 Minutes</option>
+                        <option value={0}>without time limit</option>
+                    </select>
+                </div>
                 <input
-                    type="text"
-                    value={wPlayer}
-                    required
-                    onChange={(e) => {
-                        setwPlayer(e.target.value)
-                    }}
+                    type="submit"
+                    value="Submit"
+                    className="formItem"
                 ></input>
-                <label>Name of black player:</label>
-                <input
-                    type="text"
-                    value={bPlayer}
-                    required
-                    onChange={(e) => {
-                        setbPlayer(e.target.value)
-                    }}
-                ></input>
-                <label>Pick your chess timer:</label>
-                <select
-                    value={playTime}
-                    onChange={(e) => {
-                        setPlayTime(parseInt(e.target.value))
-                    }}
-                    required
-                >
-                    <option value={10}>10/10 Minutes</option>
-                    <option value={20}>20/20 Minutes</option>
-                    <option value={60}>60/60 Minutes</option>
-                    <option value={0}>without time limit</option>
-                </select>
-                <input type="submit" value="Submit"></input>
             </form>
         </div>
     )

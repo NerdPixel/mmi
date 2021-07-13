@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Button, Layout, Space } from 'antd'
+import { Button, Layout, Slider, Space } from 'antd'
 import SideBar from './SideBar'
 import { MessageOutlined } from '@ant-design/icons'
 
@@ -218,8 +218,8 @@ const MainGame = ({
                 <Layout id="layout">
                     <Sider className="sideBar" theme="light" width="300">
                         <SideBar
-                            player={props.bPlayer}
-                            playTime={props.playTime}
+                            player={bPlayer}
+                            playTime={playTime}
                             marked={!whitesTurn}
                             moves={moves}
                             whiteBar={false}
@@ -259,8 +259,8 @@ const MainGame = ({
                     </Content>
                     <Sider theme="light" width="300" className="sideBar">
                         <SideBar
-                            player={props.wPlayer}
-                            playTime={props.playTime}
+                            player={wPlayer}
+                            playTime={playTime}
                             marked={whitesTurn}
                             moves={moves}
                             whiteBar={true}
