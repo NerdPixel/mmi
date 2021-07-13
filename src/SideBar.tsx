@@ -25,7 +25,9 @@ const SideBar = ({
         <Border marked={marked}>
             <h2>{player}'s status</h2>
             {marked && <h3>It is your turn!</h3>}
-            {playTime !== 0 && <ChessTimer playTime={playTime} />}
+            {playTime !== 0 && (
+                <ChessTimer playTime={playTime} countingOn={marked} />
+            )}
             <Moves moves={moves} whiteBar={whiteBar}></Moves>
         </Border>
     )
