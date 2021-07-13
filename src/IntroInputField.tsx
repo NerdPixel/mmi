@@ -21,7 +21,7 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
                         onChange={(e) => {
                             setwPlayer(e.target.value)
                         }}
-                    ></input>
+                    />
                 </div>
                 <div className="formItem">
                     <label>Name of black player:</label>
@@ -32,7 +32,7 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
                         onChange={(e) => {
                             setbPlayer(e.target.value)
                         }}
-                    ></input>
+                    />
                 </div>
                 <div className="formItem">
                     <label>Pick your chess timer:</label>
@@ -49,11 +49,7 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
                         <option value={0}>without time limit</option>
                     </select>
                 </div>
-                <input
-                    type="submit"
-                    value="Submit"
-                    className="formItem"
-                ></input>
+                <input type="submit" value="Submit" className="formItem" />
             </form>
         </div>
     )

@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react'
 
-const ChessTimer = ({
-    playTime,
-    countingOn,
-}: {
-    playTime: number
-    countingOn: boolean
-}) => {
-    const [timer, setTimer] = useState(playTime * 60)
+export const useTimer = (initialTime: number, active: boolean) => {
+    const ret = useState<number>(initialTime)
+    const [timer, setTimer] = ret
     useEffect(() => {
         let timerID = setInterval(() => {
-            if (timer > 0 && countingOn) {
+            if (timer > 0 && active) {
                 setTimer(timer - 1)
             }
             if (timer === 0) {
@@ -20,8 +15,12 @@ const ChessTimer = ({
         return () => {
             clearInterval(timerID)
         }
-    }, [timer])
+    }, [timer, active])
 
+    return ret
+}
+
+const ChessTimer = ({ timer }: { timer: number }) => {
     const convertToTwoDigits = (value: number) => {
         const valueAsString = value.toString()
         if (!/^[0-9]$/.test(valueAsString)) {

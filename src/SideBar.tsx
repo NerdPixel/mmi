@@ -1,7 +1,8 @@
+import React from 'react'
 import ChessTimer from './ChessTimer'
 import Moves from './Moves'
 import styled from 'styled-components'
-import { ShortMove } from 'chess.js'
+import { ChessInstance } from 'chess.js'
 
 const Border = styled.div`
     border: ${(props) => (props.marked ? 'solid 2px blue' : 'solid 2px black')};
@@ -10,25 +11,26 @@ const Border = styled.div`
 
 const SideBar = ({
     player,
-    playTime,
     marked,
-    moves,
-    whiteBar,
+    chess,
+    playerColor,
+    timer,
+    showTimer,
 }: {
     player: string
     playTime: number
     marked: boolean
-    moves: [ShortMove] | null
-    whiteBar: boolean
+    chess: ChessInstance
+    timer: number
+    playerColor: string
+    showTimer: boolean
 }) => {
     return (
         <Border marked={marked}>
             <h2>{player}'s status</h2>
             {marked && <h3>It is your turn!</h3>}
-            {playTime !== 0 && (
-                <ChessTimer playTime={playTime} countingOn={marked} />
-            )}
-            <Moves moves={moves} whiteBar={whiteBar}></Moves>
+            {showTimer && <ChessTimer timer={timer} />}
+            <Moves chess={chess} player={playerColor} />
         </Border>
     )
 }

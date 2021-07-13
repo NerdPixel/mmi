@@ -37,10 +37,10 @@ const App: React.FC = () => {
                 <MainGame
                     bPlayer={bPlayer}
                     wPlayer={wPlayer}
-                    playTime={playTime}
-                ></MainGame>
+                    playTime={playTime * 60}
+                />
             ) : (
-                <IntroInputField handleSubmit={handleSubmit}></IntroInputField>
+                <IntroInputField handleSubmit={handleSubmit} />
             )}
         </Container>
     )

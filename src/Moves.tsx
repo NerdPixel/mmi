@@ -1,39 +1,23 @@
-import { ShortMove } from 'chess.js'
+import React from 'react'
+import { ChessInstance } from 'chess.js'
 
-const Moves = (props: { moves: [ShortMove] | null; whiteBar: boolean }) => {
-    let moves = props.moves
-    if (moves != null) {
-        let counterStart = props.whiteBar ? 0 : 1
-
-        let playerMoves
-        for (let i = counterStart; i < moves.length; i += 2) {
-            if (playerMoves != null) {
-                playerMoves.push(moves[i])
-            } else {
-                playerMoves = [moves[i]]
-            }
-        }
-
-        let counterPrint = 0
-        if (playerMoves != null) {
-            return (
-                <div>
-                    {playerMoves.map((move) => {
-                        counterPrint++
-                        return (
-                            <div>
-                                {counterPrint}. from {move.from} to {move.to}
-                            </div>
-                        )
-                    })}
-                </div>
-            )
-        } else {
-            return <div></div>
-        }
-    } else {
-        return <div></div>
+const Moves = (props: { chess: ChessInstance | null; player: string }) => {
+    if (props.chess) {
+        return (
+            <div>
+                {props.chess
+                    .history({ verbose: true })
+                    .filter((move) => move.color === props.player)
+                    .map((move, idx) => (
+                        <div>
+                            {idx + 1}. from {move.from} to {move.to}
+                        </div>
+                    ))}
+            </div>
+        )
     }
+
+    return null
 }
 
 export default Moves

@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Button, Layout, Slider, Space } from 'antd'
+import { Button, Layout, Space } from 'antd'
 import SideBar from './SideBar'
 import { MessageOutlined } from '@ant-design/icons'
 
 import './App.css'
-import Chessboard, { Piece } from 'chessboardjsx'
-import { ChessInstance, PieceType, ShortMove, Square } from 'chess.js'
+import Chessboard from 'chessboardjsx'
+import { ChessInstance, ShortMove, Square } from 'chess.js'
 import SpeechRecognition, {
     useSpeechRecognition,
 } from 'react-speech-recognition'
 import { normalizeTranscript, Pieces } from './synonyms'
 import Sider from 'antd/lib/layout/Sider'
-import { Content, Footer } from 'antd/lib/layout/layout'
-
-const Container = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 30px;
-    flex-direction: column;
-`
+import { Content } from 'antd/lib/layout/layout'
+import { useTimer } from './ChessTimer'
 
 const Flexbox = styled.div`
     display: flex;
@@ -91,24 +84,20 @@ const MainGame = ({
     const [chess] = useState<ChessInstance>(
         new Chess('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     )
-    const [whitesTurn, setWhitesTurn] = useState(true)
     const [fen, setFen] = useState(chess.fen())
     const { transcript, resetTranscript, listening } = useSpeechRecognition()
     const [from, setFrom] = useState<Square | null>(null)
     const [to, setTo] = useState<Square | null>(null)
     const [selectedSquare, setSelectedSquare] = useState<Square | null>()
     const [error, setError] = useState<string | null>()
-    const [moves, setMoves] = useState<[ShortMove] | null>(null)
 
-    const noteMove = (move: ShortMove) => {
-        if (moves != null) {
-            const newMoves = moves
-            newMoves.push(move)
-            setMoves(newMoves)
-        } else {
-            setMoves([move])
-        }
-    }
+    const [wTimer, setWTimer] = useTimer(playTime, chess.turn() === 'w')
+    const [bTimer, setBTimer] = useTimer(playTime, chess.turn() === 'b')
+    const [lastMoveTime, setLastMoveTime] = useState<[number, number][] | null>(
+        [[playTime, playTime]]
+    )
+
+    const whitesTurn = chess.turn() === 'w'
 
     useEffect(() => {
         if (!transcript) return
@@ -163,9 +152,12 @@ const MainGame = ({
     const handleMove = (move: ShortMove) => {
         setError(null)
         if (chess.move(move)) {
-            noteMove(move)
-            setWhitesTurn(x => !x);
             setFen(chess.fen())
+
+            // Update undo timer values
+            setLastMoveTime((x) =>
+                x ? [[wTimer, bTimer], x[0]] : [[wTimer, bTimer]]
+            )
         }
     }
 
@@ -182,7 +174,6 @@ const MainGame = ({
         }
     }
     const handleKeypress = (e: KeyboardEvent) => {
-        console.log(e)
         if (e.code === 'Space') {
             toggleListening()
         }
@@ -201,6 +192,17 @@ const MainGame = ({
         }
     }
 
+    const undoMove = () => {
+        if (lastMoveTime && lastMoveTime[1]) {
+            chess.undo()
+            const [wTime, bTime] = lastMoveTime[1]
+            setWTimer(wTime)
+            setBTimer(bTime)
+            setLastMoveTime((x) => (x ? [x[1]] : null))
+            setFen(chess.fen())
+        }
+    }
+
     return (
         <div>
             <Space>
@@ -210,9 +212,11 @@ const MainGame = ({
                             player={bPlayer}
                             playTime={playTime}
                             marked={!whitesTurn}
-                            moves={moves}
-                            whiteBar={false}
-                        ></SideBar>
+                            chess={chess}
+                            playerColor="b"
+                            timer={bTimer}
+                            showTimer={playTime !== 0}
+                        />
                     </Sider>
                     <Content className="flex-center">
                         <Chessboard
@@ -251,9 +255,11 @@ const MainGame = ({
                             player={wPlayer}
                             playTime={playTime}
                             marked={whitesTurn}
-                            moves={moves}
-                            whiteBar={true}
-                        ></SideBar>
+                            chess={chess}
+                            playerColor="w"
+                            timer={wTimer}
+                            showTimer={playTime !== 0}
+                        />
                     </Sider>
                 </Layout>
             </Space>
@@ -268,6 +274,9 @@ const MainGame = ({
                 </Button>
                 <p>or press the Space key...</p>
                 {error && !listening && <MessageBox>{error}</MessageBox>}
+                {lastMoveTime && lastMoveTime[1] && (
+                    <Button onClick={undoMove}>Undo</Button>
+                )}
             </Flexbox>
         </div>
     )
