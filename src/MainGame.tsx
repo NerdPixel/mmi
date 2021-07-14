@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Button, Layout, Space } from 'antd'
+import { Layout, Space } from 'antd'
 import SideBar from './SideBar'
 import { MessageOutlined } from '@ant-design/icons'
+import magic from "./Magic.png"
 
 import './App.css'
 import Chessboard from 'chessboardjsx'
@@ -10,14 +11,41 @@ import { ChessInstance, ShortMove, Square } from 'chess.js'
 import SpeechRecognition, {
     useSpeechRecognition,
 } from 'react-speech-recognition'
-import { normalizeTranscript, Pieces } from './synonyms'
 import Sider from 'antd/lib/layout/Sider'
 import { Content } from 'antd/lib/layout/layout'
 import { useTimer } from './ChessTimer'
 
+export const Pieces = {
+    p: ['pawn', 'phone', 'on'],
+    n: ['knight', 'night', 'light'],
+    b: ['bishop'],
+    r: ['rook', 'rock'],
+    q: ['queen'],
+    k: ['king'],
+}
+
+export const syns = [
+    ['see', 'c'],
+    ['die', 'd'],
+    ['for', '4']
+]
+
+export const normalizeTranscript = (transcript: string) => {
+    transcript = transcript.toLowerCase()
+    for (let syn of syns) {
+        transcript = transcript.replaceAll(syn[0], syn[1])
+    }
+    return transcript
+}
+
+
 const Flexbox = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    background: #69152a;
+    padding: 20px;
 `
 
 const MessageBox = styled.div`
@@ -90,6 +118,7 @@ const MainGame = ({
     const [to, setTo] = useState<Square | null>(null)
     const [selectedSquare, setSelectedSquare] = useState<Square | null>()
     const [error, setError] = useState<string | null>()
+    const whitesTurn = chess.turn() === 'w'
 
     const [wTimer, setWTimer] = useTimer(playTime, chess.turn() === 'w')
     const [bTimer, setBTimer] = useTimer(playTime, chess.turn() === 'b')
@@ -97,10 +126,10 @@ const MainGame = ({
         [[playTime, playTime]]
     )
 
-    const whitesTurn = chess.turn() === 'w'
 
     useEffect(() => {
         if (!transcript) return
+
 
         console.log(normalizeTranscript(transcript))
         // check if player says full command like "a2 to a3"
@@ -175,6 +204,7 @@ const MainGame = ({
     }
     const handleKeypress = (e: KeyboardEvent) => {
         if (e.code === 'Space') {
+            e.preventDefault();
             toggleListening()
         }
     }
@@ -204,10 +234,21 @@ const MainGame = ({
     }
 
     return (
+        <div className="mainwrapper">
+
+        <div className="controls">
+            <img className="logo" onClick={toggleListening} src={magic} />
+            {listening ? 'Listening...' : 'Click to talk or press the Space key...'}
+            <button disabled={!(lastMoveTime && lastMoveTime[1])} onClick={undoMove}>Undo</button>
+            <div>
+                {error && !listening && <MessageBox>{error}</MessageBox>}
+            </div>
+        </div>
+            
         <div>
-            <Space>
+            <Space className="main">
                 <Layout id="layout">
-                    <Sider className="sideBar" theme="light" width="300">
+                    <Sider className={`sideBar sideBarSlyth ${whitesTurn ? "" : "active" }`} width="300">
                         <SideBar
                             player={bPlayer}
                             playTime={playTime}
@@ -250,7 +291,7 @@ const MainGame = ({
                             onMouseOverSquare={setSelectedSquare}
                         />
                     </Content>
-                    <Sider theme="light" width="300" className="sideBar">
+                    <Sider width="300" className={`sideBar sideBarGryf ${whitesTurn ? "active" : "" }`}>
                         <SideBar
                             player={wPlayer}
                             playTime={playTime}
@@ -263,21 +304,7 @@ const MainGame = ({
                     </Sider>
                 </Layout>
             </Space>
-
-            <Flexbox>
-                <Button
-                    type="primary"
-                    icon={<MessageOutlined />}
-                    onClick={toggleListening}
-                >
-                    {listening ? 'Listening...' : 'Click to talk'}
-                </Button>
-                <p>or press the Space key...</p>
-                {error && !listening && <MessageBox>{error}</MessageBox>}
-                {lastMoveTime && lastMoveTime[1] && (
-                    <Button onClick={undoMove}>Undo</Button>
-                )}
-            </Flexbox>
+        </div>
         </div>
     )
 }

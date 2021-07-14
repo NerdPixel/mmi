@@ -31,8 +31,137 @@ form {
 
 .formItem {
     flex-grow: 1;
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: white;
 }
 
 input {
-    padding-left: 20px;
+    padding: 5px 10px;
+    border: none;
+    outline: none;
+    border-bottom: 2px solid gold;
+    background: #330611;
+    color: white;
+    border-radius: 3px;
+    min-width: 200px;
+}
+
+.intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+select {
+    padding: 5px 10px;
+    border: none;
+    outline: none;
+    border-bottom: 2px solid gold;
+    background: #330611;
+    color: white;
+    border-radius: 3px;
+    min-width: 200px;
+}
+
+.intro img {
+    width: 250px;
+    margin-bottom: 25px;
+}
+
+input[type=submit] {
+    cursor: pointer;
+}
+
+h1, h2, h3, h4 {
+    color: white;
+}
+
+.sideBar {
+    color: white;
+    border: none;
+    margin: 0;
+}
+
+.sideBar h2 {
+    text-align: center;
+    margin: 0;
+}
+
+.sideBar img {
+    width: 100% !important;
+}
+
+.sideBar.active {
+    border-top: 4px solid gold;
+}
+
+.sideBarSlyth {
+    border-top: 4px solid #23580a;
+    background: #23580a;
+}
+.sideBarGryf {
+    border-top: 4px solid #580a1d;
+    background: #580a1d;
+
+}
+
+.main {
+    box-shadow: 0px 0px 100px 150px rgba(0, 0, 0, 0.2);
+}
+
+.mainwrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    width: 200px;
+    align-self: center;
+    padding: 10px;
+    cursor: pointer;
+    position: relative;
+}
+
+.logo::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "234";
+    width: 100px;
+    height: 100px;
+    background: red;
+    box-shadow: 0px 0px 100px 150px rgba(224, 181, 63, 1);
+}
+
+.controls {
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.controls button {
+    background: #330611;
+    color: white;
+    border: none;
+    outline: none;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 20px 0;
+    cursor: pointer;
+    min-width: 250px;
+}
+
+.controls p {
+    text-align: center;
+}
+
+.controls button:disabled {
+    cursor: unset;
+    background: #311e23;
+    color: #69404b;
 }
