@@ -9,7 +9,7 @@ const Moves = (props: { chess: ChessInstance | null; player: string }) => {
                     .history({ verbose: true })
                     .filter((move) => move.color === props.player)
                     .map((move, idx) => (
-                        <div>
+                        <div key={move.from + move.to}>
                             {idx + 1}. from {move.from} to {move.to}
                         </div>
                     ))}

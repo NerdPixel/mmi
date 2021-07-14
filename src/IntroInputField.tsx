@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import magic from "./Magic.png"
+import magic from './Magic.png'
 
 const IntroInputField = (props: { handleSubmit: Function }) => {
     const [bPlayer, setbPlayer] = useState('')
@@ -8,8 +8,8 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
 
     return (
         <div className="intro">
-            <img src={magic} />
-            
+            <img src={magic} alt={'logo'} />
+
             <form
                 onSubmit={(e) => {
                     props.handleSubmit(e, bPlayer, wPlayer, playTime)

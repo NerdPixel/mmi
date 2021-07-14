@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import { Layout, Space } from 'antd'
 import SideBar from './SideBar'
-import { MessageOutlined } from '@ant-design/icons'
-import magic from "./Magic.png"
+import magic from './Magic.png'
 
 import './App.css'
 import Chessboard from 'chessboardjsx'
@@ -16,7 +15,7 @@ import { Content } from 'antd/lib/layout/layout'
 import { useTimer } from './ChessTimer'
 
 export const Pieces = {
-    p: ['pawn', 'phone', 'on'],
+    p: ['pawn', 'phone', 'on', 'born', 'palm'],
     n: ['knight', 'night', 'light'],
     b: ['bishop'],
     r: ['rook', 'rock'],
@@ -27,7 +26,9 @@ export const Pieces = {
 export const syns = [
     ['see', 'c'],
     ['die', 'd'],
-    ['for', '4']
+    ['for', '4'],
+    ['andy', 'undo'],
+    ['andrew', 'undo'],
 ]
 
 export const normalizeTranscript = (transcript: string) => {
@@ -37,16 +38,6 @@ export const normalizeTranscript = (transcript: string) => {
     }
     return transcript
 }
-
-
-const Flexbox = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    background: #69152a;
-    padding: 20px;
-`
 
 const MessageBox = styled.div`
     border: 2px solid tomato;
@@ -126,12 +117,11 @@ const MainGame = ({
         [[playTime, playTime]]
     )
 
-
     useEffect(() => {
         if (!transcript) return
 
-
-        console.log(normalizeTranscript(transcript))
+        const norm = normalizeTranscript(transcript)
+        console.log(norm)
         // check if player says full command like "a2 to a3"
         const transcriptedFull = transcript.match(
             /[a-hA-H]+[1-8].*(?:to|2).*[a-hA-H]+[1-8]/g
@@ -142,10 +132,7 @@ const MainGame = ({
             setFrom(squares.substring(0, 3).trim() as Square)
             setTo(squares.substring(squares.length - 2).trim() as Square)
         } else {
-            const pieceMove = checkContainsPiece(
-                chess,
-                normalizeTranscript(transcript)
-            )
+            const pieceMove = checkContainsPiece(chess, norm)
             if (pieceMove.move) {
                 setFrom(pieceMove.move.from)
                 setTo(pieceMove.move.to)
@@ -166,6 +153,8 @@ const MainGame = ({
                 }
                 setError(null)
                 return
+            } else if (norm.includes('undo')) {
+                undoMove()
             }
         }
     }, [transcript])
@@ -204,7 +193,7 @@ const MainGame = ({
     }
     const handleKeypress = (e: KeyboardEvent) => {
         if (e.code === 'Space') {
-            e.preventDefault();
+            e.preventDefault()
             toggleListening()
         }
     }
@@ -235,76 +224,97 @@ const MainGame = ({
 
     return (
         <div className="mainwrapper">
-
-        <div className="controls">
-            <img className="logo" onClick={toggleListening} src={magic} />
-            {listening ? 'Listening...' : 'Click to talk or press the Space key...'}
-            <button disabled={!(lastMoveTime && lastMoveTime[1])} onClick={undoMove}>Undo</button>
-            <div>
-                {error && !listening && <MessageBox>{error}</MessageBox>}
+            <div className="controls">
+                <img
+                    className="logo"
+                    onClick={toggleListening}
+                    src={magic}
+                    alt={'press to speak button'}
+                />
+                {listening
+                    ? 'Listening...'
+                    : 'Click to talk or press the Space key...'}
+                <button
+                    disabled={!(lastMoveTime && lastMoveTime[1])}
+                    onClick={undoMove}
+                >
+                    Undo
+                </button>
+                <div>
+                    {error && !listening && <MessageBox>{error}</MessageBox>}
+                </div>
             </div>
-        </div>
-            
-        <div>
-            <Space className="main">
-                <Layout id="layout">
-                    <Sider className={`sideBar sideBarSlyth ${whitesTurn ? "" : "active" }`} width="300">
-                        <SideBar
-                            player={bPlayer}
-                            playTime={playTime}
-                            marked={!whitesTurn}
-                            chess={chess}
-                            playerColor="b"
-                            timer={bTimer}
-                            showTimer={playTime !== 0}
-                        />
-                    </Sider>
-                    <Content className="flex-center">
-                        <Chessboard
-                            width={800}
-                            position={fen}
-                            onDrop={(move) => {
-                                setFrom(null)
-                                handleMove({
-                                    from: move.sourceSquare,
-                                    to: move.targetSquare,
-                                    promotion: 'q',
-                                })
-                            }}
-                            squareStyles={{
-                                ...(from
-                                    ? {
-                                          [from]: {
-                                              backgroundColor: 'orange',
-                                          },
-                                      }
-                                    : {}),
-                                ...(selectedSquare
-                                    ? {
-                                          [selectedSquare]: {
-                                              backgroundColor: 'orange',
-                                          },
-                                      }
-                                    : {}),
-                            }}
-                            onSquareClick={handleSquareClick}
-                            onMouseOverSquare={setSelectedSquare}
-                        />
-                    </Content>
-                    <Sider width="300" className={`sideBar sideBarGryf ${whitesTurn ? "active" : "" }`}>
-                        <SideBar
-                            player={wPlayer}
-                            playTime={playTime}
-                            marked={whitesTurn}
-                            chess={chess}
-                            playerColor="w"
-                            timer={wTimer}
-                            showTimer={playTime !== 0}
-                        />
-                    </Sider>
-                </Layout>
-            </Space>
-        </div>
+
+            <div>
+                <Space className="main">
+                    <Layout id="layout">
+                        <Sider
+                            className={`sideBar sideBarSlyth ${
+                                whitesTurn ? '' : 'active'
+                            }`}
+                            width="300"
+                        >
+                            <SideBar
+                                player={bPlayer}
+                                playTime={playTime}
+                                marked={!whitesTurn}
+                                chess={chess}
+                                playerColor="b"
+                                timer={bTimer}
+                                showTimer={playTime !== 0}
+                            />
+                        </Sider>
+                        <Content className="flex-center">
+                            <Chessboard
+                                width={800}
+                                position={fen}
+                                onDrop={(move) => {
+                                    setFrom(null)
+                                    handleMove({
+                                        from: move.sourceSquare,
+                                        to: move.targetSquare,
+                                        promotion: 'q',
+                                    })
+                                }}
+                                squareStyles={{
+                                    ...(from
+                                        ? {
+                                              [from]: {
+                                                  backgroundColor: 'orange',
+                                              },
+                                          }
+                                        : {}),
+                                    ...(selectedSquare
+                                        ? {
+                                              [selectedSquare]: {
+                                                  backgroundColor: 'orange',
+                                              },
+                                          }
+                                        : {}),
+                                }}
+                                onSquareClick={handleSquareClick}
+                                onMouseOverSquare={setSelectedSquare}
+                            />
+                        </Content>
+                        <Sider
+                            width="300"
+                            className={`sideBar sideBarGryf ${
+                                whitesTurn ? 'active' : ''
+                            }`}
+                        >
+                            <SideBar
+                                player={wPlayer}
+                                playTime={playTime}
+                                marked={whitesTurn}
+                                chess={chess}
+                                playerColor="w"
+                                timer={wTimer}
+                                showTimer={playTime !== 0}
+                            />
+                        </Sider>
+                    </Layout>
+                </Space>
+            </div>
         </div>
     )
 }

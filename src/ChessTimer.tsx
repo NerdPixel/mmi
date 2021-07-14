@@ -15,7 +15,7 @@ export const useTimer = (initialTime: number, active: boolean) => {
         return () => {
             clearInterval(timerID)
         }
-    }, [timer, active])
+    }, [setTimer, timer, active])
 
     return ret
 }
