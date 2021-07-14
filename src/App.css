@@ -147,7 +147,7 @@ h4 {
     max-width: 300px;
 }
 
-.controls button {
+.defaultButton {
     background: #330611;
     color: white;
     border: none;
@@ -156,14 +156,14 @@ h4 {
     border-radius: 4px;
     margin: 20px 0;
     cursor: pointer;
-    min-width: 250px;
+    min-width: 100px;
 }
 
 .controls p {
     text-align: center;
 }
 
-.controls button:disabled {
+.defaultButton:disabled {
     cursor: unset;
     background: #311e23;
     color: #69404b;
