@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import magic from './Magic.png'
 
 const IntroInputField = (props: { handleSubmit: Function }) => {
     const [bPlayer, setbPlayer] = useState('')
@@ -6,14 +7,16 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
     const [playTime, setPlayTime] = useState<number>(0)
 
     return (
-        <div>
+        <div className="intro">
+            <img src={magic} alt={'logo'} />
+
             <form
                 onSubmit={(e) => {
                     props.handleSubmit(e, bPlayer, wPlayer, playTime)
                 }}
             >
                 <div className="formItem">
-                    <label>Name of white player:</label>
+                    <label>Name of Gryffindor player:</label>
                     <input
                         type="text"
                         value={wPlayer}
@@ -21,10 +24,10 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
                         onChange={(e) => {
                             setwPlayer(e.target.value)
                         }}
-                    ></input>
+                    />
                 </div>
                 <div className="formItem">
-                    <label>Name of black player:</label>
+                    <label>Name of Slytherin player:</label>
                     <input
                         type="text"
                         value={bPlayer}
@@ -32,7 +35,7 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
                         onChange={(e) => {
                             setbPlayer(e.target.value)
                         }}
-                    ></input>
+                    />
                 </div>
                 <div className="formItem">
                     <label>Pick your chess timer:</label>
@@ -49,11 +52,7 @@ const IntroInputField = (props: { handleSubmit: Function }) => {
                         <option value={0}>without time limit</option>
                     </select>
                 </div>
-                <input
-                    type="submit"
-                    value="Submit"
-                    className="formItem"
-                ></input>
+                <input type="submit" value="Start Game" className="formItem" />
             </form>
         </div>
     )

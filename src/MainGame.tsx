@@ -1,31 +1,43 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
-import { Button, Layout, Slider, Space } from 'antd'
+import { Layout, Space } from 'antd'
 import SideBar from './SideBar'
-import { MessageOutlined } from '@ant-design/icons'
+import magic from './Magic.png'
 
 import './App.css'
-import Chessboard, { Piece } from 'chessboardjsx'
-import { ChessInstance, PieceType, ShortMove, Square } from 'chess.js'
+import Chessboard from 'chessboardjsx'
+import { ChessInstance, ShortMove, Square } from 'chess.js'
 import SpeechRecognition, {
     useSpeechRecognition,
 } from 'react-speech-recognition'
-import { normalizeTranscript, Pieces } from './synonyms'
 import Sider from 'antd/lib/layout/Sider'
-import { Content, Footer } from 'antd/lib/layout/layout'
+import { Content } from 'antd/lib/layout/layout'
+import { useTimer } from './ChessTimer'
 
-const Container = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 30px;
-    flex-direction: column;
-`
+export const Pieces = {
+    p: ['pawn', 'phone', 'on', 'born', 'palm'],
+    n: ['knight', 'night', 'light'],
+    b: ['bishop'],
+    r: ['rook', 'rock'],
+    q: ['queen'],
+    k: ['king'],
+}
 
-const Flexbox = styled.div`
-    display: flex;
-    flex-direction: column;
-`
+export const syns = [
+    ['see', 'c'],
+    ['die', 'd'],
+    ['for', '4'],
+    ['andy', 'undo'],
+    ['andrew', 'undo'],
+]
+
+export const normalizeTranscript = (transcript: string) => {
+    transcript = transcript.toLowerCase()
+    for (let syn of syns) {
+        transcript = transcript.replaceAll(syn[0], syn[1])
+    }
+    return transcript
+}
 
 const MessageBox = styled.div`
     border: 2px solid tomato;
@@ -91,29 +103,25 @@ const MainGame = ({
     const [chess] = useState<ChessInstance>(
         new Chess('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     )
-    const [whitesTurn, setWhitesTurn] = useState(true)
     const [fen, setFen] = useState(chess.fen())
     const { transcript, resetTranscript, listening } = useSpeechRecognition()
     const [from, setFrom] = useState<Square | null>(null)
     const [to, setTo] = useState<Square | null>(null)
     const [selectedSquare, setSelectedSquare] = useState<Square | null>()
     const [error, setError] = useState<string | null>()
-    const [moves, setMoves] = useState<[ShortMove] | null>(null)
+    const whitesTurn = chess.turn() === 'w'
 
-    const noteMove = (move: ShortMove) => {
-        if (moves != null) {
-            const newMoves = moves
-            newMoves.push(move)
-            setMoves(newMoves)
-        } else {
-            setMoves([move])
-        }
-    }
+    const [wTimer, setWTimer] = useTimer(playTime, chess.turn() === 'w')
+    const [bTimer, setBTimer] = useTimer(playTime, chess.turn() === 'b')
+    const [lastMoveTime, setLastMoveTime] = useState<[number, number][] | null>(
+        [[playTime, playTime]]
+    )
 
     useEffect(() => {
         if (!transcript) return
 
-        console.log(normalizeTranscript(transcript))
+        const norm = normalizeTranscript(transcript)
+        console.log(norm)
         // check if player says full command like "a2 to a3"
         const transcriptedFull = transcript.match(
             /[a-hA-H]+[1-8].*(?:to|2).*[a-hA-H]+[1-8]/g
@@ -124,10 +132,7 @@ const MainGame = ({
             setFrom(squares.substring(0, 3).trim() as Square)
             setTo(squares.substring(squares.length - 2).trim() as Square)
         } else {
-            const pieceMove = checkContainsPiece(
-                chess,
-                normalizeTranscript(transcript)
-            )
+            const pieceMove = checkContainsPiece(chess, norm)
             if (pieceMove.move) {
                 setFrom(pieceMove.move.from)
                 setTo(pieceMove.move.to)
@@ -148,6 +153,8 @@ const MainGame = ({
                 }
                 setError(null)
                 return
+            } else if (norm.includes('undo')) {
+                undoMove()
             }
         }
     }, [transcript])
@@ -163,9 +170,12 @@ const MainGame = ({
     const handleMove = (move: ShortMove) => {
         setError(null)
         if (chess.move(move)) {
-            noteMove(move)
-            setWhitesTurn(x => !x);
             setFen(chess.fen())
+
+            // Update undo timer values
+            setLastMoveTime((x) =>
+                x ? [[wTimer, bTimer], x[0]] : [[wTimer, bTimer]]
+            )
         }
     }
 
@@ -182,8 +192,8 @@ const MainGame = ({
         }
     }
     const handleKeypress = (e: KeyboardEvent) => {
-        console.log(e)
         if (e.code === 'Space') {
+            e.preventDefault()
             toggleListening()
         }
     }
@@ -201,74 +211,110 @@ const MainGame = ({
         }
     }
 
-    return (
-        <div>
-            <Space>
-                <Layout id="layout">
-                    <Sider className="sideBar" theme="light" width="300">
-                        <SideBar
-                            player={bPlayer}
-                            playTime={playTime}
-                            marked={!whitesTurn}
-                            moves={moves}
-                            whiteBar={false}
-                        ></SideBar>
-                    </Sider>
-                    <Content className="flex-center">
-                        <Chessboard
-                            width={800}
-                            position={fen}
-                            onDrop={(move) => {
-                                setFrom(null)
-                                handleMove({
-                                    from: move.sourceSquare,
-                                    to: move.targetSquare,
-                                    promotion: 'q',
-                                })
-                            }}
-                            squareStyles={{
-                                ...(from
-                                    ? {
-                                          [from]: {
-                                              backgroundColor: 'orange',
-                                          },
-                                      }
-                                    : {}),
-                                ...(selectedSquare
-                                    ? {
-                                          [selectedSquare]: {
-                                              backgroundColor: 'orange',
-                                          },
-                                      }
-                                    : {}),
-                            }}
-                            onSquareClick={handleSquareClick}
-                            onMouseOverSquare={setSelectedSquare}
-                        />
-                    </Content>
-                    <Sider theme="light" width="300" className="sideBar">
-                        <SideBar
-                            player={wPlayer}
-                            playTime={playTime}
-                            marked={whitesTurn}
-                            moves={moves}
-                            whiteBar={true}
-                        ></SideBar>
-                    </Sider>
-                </Layout>
-            </Space>
+    const undoMove = () => {
+        if (lastMoveTime && lastMoveTime[1]) {
+            chess.undo()
+            const [wTime, bTime] = lastMoveTime[1]
+            setWTimer(wTime)
+            setBTimer(bTime)
+            setLastMoveTime((x) => (x ? [x[1]] : null))
+            setFen(chess.fen())
+        }
+    }
 
-            <Flexbox>
-                <Button
-                    type="primary"
-                    icon={<MessageOutlined />}
+    return (
+        <div className="mainwrapper">
+            <div className="controls">
+                <img
+                    className="logo"
                     onClick={toggleListening}
+                    src={magic}
+                    alt={'press to speak button'}
+                />
+                {listening
+                    ? 'Listening...'
+                    : 'Click to talk or press the Space key...'}
+                <button
+                    disabled={!(lastMoveTime && lastMoveTime[1])}
+                    onClick={undoMove}
                 >
-                    {listening ? 'Listening...' : 'Click to talk'}
-                </Button>
-                <p>or press the Space key...</p>
-                {error && !listening && <MessageBox>{error}</MessageBox>}
-            </Flexbox>
+                    Undo
+                </button>
+                <div>
+                    {error && !listening && <MessageBox>{error}</MessageBox>}
+                </div>
+            </div>
+
+            <div>
+                <Space className="main">
+                    <Layout id="layout">
+                        <Sider
+                            className={`sideBar sideBarSlyth ${
+                                whitesTurn ? '' : 'active'
+                            }`}
+                            width="300"
+                        >
+                            <SideBar
+                                player={bPlayer}
+                                playTime={playTime}
+                                marked={!whitesTurn}
+                                chess={chess}
+                                playerColor="b"
+                                timer={bTimer}
+                                showTimer={playTime !== 0}
+                            />
+                        </Sider>
+                        <Content className="flex-center">
+                            <Chessboard
+                                width={800}
+                                position={fen}
+                                onDrop={(move) => {
+                                    setFrom(null)
+                                    handleMove({
+                                        from: move.sourceSquare,
+                                        to: move.targetSquare,
+                                        promotion: 'q',
+                                    })
+                                }}
+                                squareStyles={{
+                                    ...(from
+                                        ? {
+                                              [from]: {
+                                                  backgroundColor: 'orange',
+                                              },
+                                          }
+                                        : {}),
+                                    ...(selectedSquare
+                                        ? {
+                                              [selectedSquare]: {
+                                                  backgroundColor: 'orange',
+                                              },
+                                          }
+                                        : {}),
+                                }}
+                                onSquareClick={handleSquareClick}
+                                onMouseOverSquare={setSelectedSquare}
+                            />
+                        </Content>
+                        <Sider
+                            width="300"
+                            className={`sideBar sideBarGryf ${
+                                whitesTurn ? 'active' : ''
+                            }`}
+                        >
+                            <SideBar
+                                player={wPlayer}
+                                playTime={playTime}
+                                marked={whitesTurn}
+                                chess={chess}
+                                playerColor="w"
+                                timer={wTimer}
+                                showTimer={playTime !== 0}
+                            />
+                        </Sider>
+                    </Layout>
+                </Space>
+            </div>
         </div>
     )
 }
