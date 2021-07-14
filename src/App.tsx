@@ -4,13 +4,6 @@ import MainGame from './MainGame'
 import IntroInputField from './IntroInputField'
 import './App.css'
 
-const Container = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 30px;
-`
-
 const App: React.FC = () => {
     const [bPlayer, setbPlayer] = useState('')
     const [wPlayer, setwPlayer] = useState('')
@@ -32,7 +25,7 @@ const App: React.FC = () => {
     }
 
     return (
-        <Container>
+        <>
             {gameHasStarted ? (
                 <MainGame
                     bPlayer={bPlayer}
@@ -42,7 +35,7 @@ const App: React.FC = () => {
             ) : (
                 <IntroInputField handleSubmit={handleSubmit} />
             )}
-        </Container>
+        </>
     )
 }
 

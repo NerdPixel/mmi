@@ -252,7 +252,7 @@ const MainGame = ({
                             className={`sideBar sideBarSlyth ${
                                 whitesTurn ? '' : 'active'
                             }`}
-                            width="300"
+                            width="250"
                         >
                             <SideBar
                                 player={bPlayer}
@@ -266,7 +266,10 @@ const MainGame = ({
                         </Sider>
                         <Content className="flex-center">
                             <Chessboard
-                                width={800}
+                                // width={800}
+                                calcWidth={({ screenWidth }) =>
+                                    screenWidth * 0.42
+                                }
                                 position={fen}
                                 onDrop={(move) => {
                                     setFrom(null)
@@ -297,7 +300,7 @@ const MainGame = ({
                             />
                         </Content>
                         <Sider
-                            width="300"
+                            width="250"
                             className={`sideBar sideBarGryf ${
                                 whitesTurn ? 'active' : ''
                             }`}
