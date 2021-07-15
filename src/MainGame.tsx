@@ -15,6 +15,7 @@ import { Content } from 'antd/lib/layout/layout'
 import { useTimer } from './ChessTimer'
 
 const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+const checkmateFen = '8/4N1pk/8/7R/8/8/8/8 b KQkq - 0 1'
 export const Pieces = {
     p: ['pawn', 'phone', 'on', 'born', 'palm'],
     n: ['knight', 'night', 'light'],
@@ -185,12 +186,6 @@ const MainGame = ({
         }
     }, [from, to])
 
-    useEffect(() => {
-        if (chess.in_checkmate()) {
-            setWinnerModalVisible(true)
-        }
-    }, [chess])
-
     const handleMove = (move: ShortMove) => {
         setError(null)
         if (chess.move(move)) {
@@ -200,6 +195,9 @@ const MainGame = ({
             setLastMoveTime((x) =>
                 x ? [[wTimer, bTimer], x[0]] : [[wTimer, bTimer]]
             )
+            if (chess.in_checkmate()) {
+                setWinnerModalVisible(true)
+            }
         }
     }
 
