@@ -1,25 +1,27 @@
 {
   "files": {
-    "main.css": "/mmi/static/css/main.aac42580.chunk.css",
-    "main.js": "/mmi/static/js/main.02858530.chunk.js",
-    "main.js.map": "/mmi/static/js/main.02858530.chunk.js.map",
-    "runtime-main.js": "/mmi/static/js/runtime-main.a494be3a.js",
-    "runtime-main.js.map": "/mmi/static/js/runtime-main.a494be3a.js.map",
+    "main.css": "/mmi/static/css/main.02e9d5eb.chunk.css",
+    "main.js": "/mmi/static/js/main.c6deca85.chunk.js",
+    "main.js.map": "/mmi/static/js/main.c6deca85.chunk.js.map",
+    "runtime-main.js": "/mmi/static/js/runtime-main.626b1139.js",
+    "runtime-main.js.map": "/mmi/static/js/runtime-main.626b1139.js.map",
     "static/css/2.ba8a8a05.chunk.css": "/mmi/static/css/2.ba8a8a05.chunk.css",
-    "static/js/2.2923dc3f.chunk.js": "/mmi/static/js/2.2923dc3f.chunk.js",
-    "static/js/2.2923dc3f.chunk.js.map": "/mmi/static/js/2.2923dc3f.chunk.js.map",
-    "static/js/3.7c1ae550.chunk.js": "/mmi/static/js/3.7c1ae550.chunk.js",
-    "static/js/3.7c1ae550.chunk.js.map": "/mmi/static/js/3.7c1ae550.chunk.js.map",
+    "static/js/2.53f1f5c5.chunk.js": "/mmi/static/js/2.53f1f5c5.chunk.js",
+    "static/js/2.53f1f5c5.chunk.js.map": "/mmi/static/js/2.53f1f5c5.chunk.js.map",
+    "static/js/3.0d5814fd.chunk.js": "/mmi/static/js/3.0d5814fd.chunk.js",
+    "static/js/3.0d5814fd.chunk.js.map": "/mmi/static/js/3.0d5814fd.chunk.js.map",
     "index.html": "/mmi/index.html",
     "static/css/2.ba8a8a05.chunk.css.map": "/mmi/static/css/2.ba8a8a05.chunk.css.map",
-    "static/css/main.aac42580.chunk.css.map": "/mmi/static/css/main.aac42580.chunk.css.map",
-    "static/js/2.2923dc3f.chunk.js.LICENSE.txt": "/mmi/static/js/2.2923dc3f.chunk.js.LICENSE.txt"
+    "static/css/main.02e9d5eb.chunk.css.map": "/mmi/static/css/main.02e9d5eb.chunk.css.map",
+    "static/js/2.53f1f5c5.chunk.js.LICENSE.txt": "/mmi/static/js/2.53f1f5c5.chunk.js.LICENSE.txt",
+    "static/media/Magic.cc753f6b.png": "/mmi/static/media/Magic.cc753f6b.png",
+    "static/media/orn.1d5d535f.png": "/mmi/static/media/orn.1d5d535f.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.a494be3a.js",
+    "static/js/runtime-main.626b1139.js",
     "static/css/2.ba8a8a05.chunk.css",
-    "static/js/2.2923dc3f.chunk.js",
-    "static/css/main.aac42580.chunk.css",
-    "static/js/main.02858530.chunk.js"
+    "static/js/2.53f1f5c5.chunk.js",
+    "static/css/main.02e9d5eb.chunk.css",
+    "static/js/main.c6deca85.chunk.js"
   ]
 }
