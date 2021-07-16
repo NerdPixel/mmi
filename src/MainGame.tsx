@@ -141,6 +141,7 @@ const MainGame = ({
         if (!transcript) return
 
         const norm = normalizeTranscript(transcript)
+        console.log(norm)
         // check if player says full command like "a2 to a3"
         const transcriptedFull = transcript.match(
             /[a-hA-H]+[1-8].*(?:to|2).*[a-hA-H]+[1-8]/g
@@ -228,8 +229,10 @@ const MainGame = ({
     const handleSquareClick = (square: Square) => {
         if (from) {
             setTo(square)
+            console.log('To ', square)
         } else {
             setFrom(square)
+            console.log('From ', square)
         }
     }
 
@@ -303,6 +306,7 @@ const MainGame = ({
                         </Sider>
                         <Content className="flex-center">
                             <Chessboard
+                                allowDrag={() => !listening}
                                 calcWidth={({ screenWidth }) =>
                                     screenWidth * 0.42
                                 }
@@ -332,7 +336,11 @@ const MainGame = ({
                                         : {}),
                                 }}
                                 onSquareClick={handleSquareClick}
-                                onMouseOverSquare={setSelectedSquare}
+                                onMouseOverSquare={(...args) => {
+                                    if (!listening) {
+                                        setSelectedSquare(...args)
+                                    }
+                                }}
                                 onMouseOutSquare={() => setSelectedSquare(null)}
                             />
                         </Content>
