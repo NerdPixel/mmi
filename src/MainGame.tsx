@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
-import { Layout, Space } from 'antd'
+import { Layout, Space, Modal } from 'antd'
 import SideBar from './SideBar'
 import magic from './Magic.png'
 
@@ -14,6 +14,8 @@ import Sider from 'antd/lib/layout/Sider'
 import { Content } from 'antd/lib/layout/layout'
 import { useTimer } from './ChessTimer'
 
+const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+const checkmateFen = '8/4N1pk/8/7R/8/8/8/8 b KQkq - 0 1'
 export const Pieces = {
     p: ['pawn', 'phone', 'on', 'born', 'palm'],
     n: ['knight', 'night', 'light'],
@@ -43,6 +45,24 @@ const MessageBox = styled.div`
     border: 2px solid tomato;
     padding: 10px;
     position: relative;
+`
+
+const WinnerModal = styled(Modal)`
+    background-color: #580a1d;
+    color: white;
+    border-radius: 4px;
+    .ant-modal-content {
+        box-shadow: none;
+    }
+
+    .ant-modal-footer {
+        background-color: #580a1d;
+        border-top: 1px solid gold;
+        padding: 0px 16px;
+    }
+    .ant-modal-body {
+        background-color: #580a1d;
+    }
 `
 
 const Chess = require('chess.js')
@@ -100,15 +120,15 @@ const MainGame = ({
     wPlayer: string
     playTime: number
 }) => {
-    const [chess] = useState<ChessInstance>(
-        new Chess('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
-    )
+    const [chess] = useState<ChessInstance>(new Chess(startFen))
     const [fen, setFen] = useState(chess.fen())
     const { transcript, resetTranscript, listening } = useSpeechRecognition()
     const [from, setFrom] = useState<Square | null>(null)
     const [to, setTo] = useState<Square | null>(null)
     const [selectedSquare, setSelectedSquare] = useState<Square | null>()
     const [error, setError] = useState<string | null>()
+    const [isWinnerModalVisible, setWinnerModalVisible] =
+        useState<boolean>(false)
     const whitesTurn = chess.turn() === 'w'
 
     const [wTimer, setWTimer] = useTimer(playTime, chess.turn() === 'w')
@@ -121,7 +141,6 @@ const MainGame = ({
         if (!transcript) return
 
         const norm = normalizeTranscript(transcript)
-        console.log(norm)
         // check if player says full command like "a2 to a3"
         const transcriptedFull = transcript.match(
             /[a-hA-H]+[1-8].*(?:to|2).*[a-hA-H]+[1-8]/g
@@ -176,6 +195,9 @@ const MainGame = ({
             setLastMoveTime((x) =>
                 x ? [[wTimer, bTimer], x[0]] : [[wTimer, bTimer]]
             )
+            if (chess.in_checkmate()) {
+                setWinnerModalVisible(true)
+            }
         }
     }
 
@@ -224,6 +246,20 @@ const MainGame = ({
 
     return (
         <div className="mainwrapper">
+            <WinnerModal
+                visible={isWinnerModalVisible}
+                footer={[
+                    <button
+                        className="defaultButton"
+                        onClick={() => setWinnerModalVisible(false)}
+                    >
+                        Return
+                    </button>,
+                ]}
+            >
+                Checkmate! The winner is{' '}
+                {chess.turn() === 'w' ? bPlayer : wPlayer}
+            </WinnerModal>
             <div className="controls">
                 <img
                     className="logo"
@@ -235,6 +271,7 @@ const MainGame = ({
                     ? 'Listening...'
                     : 'Click to talk or press the Space key...'}
                 <button
+                    className="defaultButton"
                     disabled={!(lastMoveTime && lastMoveTime[1])}
                     onClick={undoMove}
                 >
@@ -252,7 +289,7 @@ const MainGame = ({
                             className={`sideBar sideBarSlyth ${
                                 whitesTurn ? '' : 'active'
                             }`}
-                            width="300"
+                            width="250"
                         >
                             <SideBar
                                 player={bPlayer}
@@ -266,7 +303,9 @@ const MainGame = ({
                         </Sider>
                         <Content className="flex-center">
                             <Chessboard
-                                width={800}
+                                calcWidth={({ screenWidth }) =>
+                                    screenWidth * 0.42
+                                }
                                 position={fen}
                                 onDrop={(move) => {
                                     setFrom(null)
@@ -280,24 +319,25 @@ const MainGame = ({
                                     ...(from
                                         ? {
                                               [from]: {
-                                                  backgroundColor: 'orange',
+                                                  backgroundColor: 'gold',
                                               },
                                           }
                                         : {}),
                                     ...(selectedSquare
                                         ? {
                                               [selectedSquare]: {
-                                                  backgroundColor: 'orange',
+                                                  backgroundColor: 'gold',
                                               },
                                           }
                                         : {}),
                                 }}
                                 onSquareClick={handleSquareClick}
                                 onMouseOverSquare={setSelectedSquare}
+                                onMouseOutSquare={() => setSelectedSquare(null)}
                             />
                         </Content>
                         <Sider
-                            width="300"
+                            width="250"
                             className={`sideBar sideBarGryf ${
                                 whitesTurn ? 'active' : ''
                             }`}
